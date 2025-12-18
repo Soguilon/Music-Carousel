@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Carousel</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #1c1c1c, #3b3b6b, #ff5fa2);
+  background-size: 600% 600%;
+  animation: gradientMove 12s ease infinite;
+}
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Player Carousel Container */
+.carousel {
+  width: 90%;
+  max-width: 380px;
+  position: relative;
+}
+
+/* Player Card */
+.player {
+  backdrop-filter: blur(25px) saturate(180%);
+  background: rgba(0,0,0,0.4);
+  border-radius: 28px;
+  padding: 25px;
+  text-align: center;
+  color: #fff;
+  border: 2px solid rgba(0, 255, 255, 0.6);
+  box-shadow: 0 20px 40px rgba(0,255,255,0.2),
+              0 0 30px rgba(255,0,255,0.2),
+              inset 0 0 0 1px rgba(255,255,255,0.15);
+  transition: box-shadow 0.2s ease, opacity 0.5s ease;
+  display: none;
+}
+.player.active {
+  display: block;
+}
+
+/* Cover Image */
+.cover {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 22px;
+  overflow: hidden;
+  margin-bottom: 18px;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 10px 25px rgba(0,0,0,0.5);
+}
+.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 22px;
+}
+
+h3 {
+  margin: 10px 0 8px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.7);
+}
+
+.time {
+  font-size: 14px;
+  opacity: 0.95;
+  margin-bottom: 14px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+.controls button {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.5);
+  color: #0ff;
+  font-size: 22px;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 10px #0ff, 0 0 20px #ff5fa2;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+.controls button:hover {
+  transform: scale(1.15);
+  color: #ff5fa2;
+  box-shadow: 0 0 15px #0ff, 0 0 30px #ff5fa2;
+}
+
+/* Sliders */
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+.slider-container i {
+  font-size: 18px;
+  color: #0ff;
+  text-shadow: 0 0 6px #0ff;
+}
+input[type=range] {
+  flex: 1;
+  -webkit-appearance: none;
+  background: rgba(255,255,255,0.1);
+  height: 6px;
+  border-radius: 12px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0ff;
+  cursor: pointer;
+  box-shadow: 0 0 10px #0ff, 0 0 6px #ff5fa2;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+  background: #ff5fa2;
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0ff;
+  cursor: pointer;
+  box-shadow: 0 0 10px #0ff, 0 0 6px #ff5fa2;
+}
+
+/* Carousel Navigation Buttons */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.5);
+  color: #0ff;
+  font-size: 24px;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 10px #0ff, 0 0 20px #ff5fa2;
+  transition: transform 0.15s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.nav-btn:hover {
+  transform: translateY(-50%) scale(1.15);
+  color: #ff5fa2;
+  box-shadow: 0 0 15px #0ff, 0 0 30px #ff5fa2;
+}
+#prevBtn { left: -70px; }
+#nextBtn { right: -70px; }
+
+/* Responsive */
+@media screen and (max-width: 480px) {
+  #prevBtn { left: -50px; }
+  #nextBtn { right: -50px; }
+  .controls button { width: 48px; height: 48px; font-size: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="carousel">
+  <!-- Navigation Buttons -->
+  <button class="nav-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+  <button class="nav-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+
+  <!-- Player Containers -->
+<div class="player active" data-title="Mahal Kita Lagi" data-src="Mahal Kita Lagi.mp3" data-duration="217">
+  <div class="cover"><img src="1.png" alt="1"></div>
+  <h3 class="title">Tap Play</h3>
+  <div class="time">0:00 / 3:37</div>
+  <audio></audio>
+  <div class="controls">
+    <button class="playPause"><i class="fas fa-play"></i></button>
+  </div>
+  <div class="slider-container">
+    <i class="fas fa-backward"></i>
+    <input type="range" class="progress" min="0" max="100" value="0">
+    <i class="fas fa-forward"></i>
+  </div>
+  <div class="slider-container">
+    <i class="fas fa-volume-low"></i>
+    <input type="range" class="volume" min="0" max="1" step="0.01" value="1">
+    <i class="fas fa-volume-high"></i>
+  </div>
+</div>
+
+<div class="player" data-title="Ikaw Pa Rin" data-src="Ikaw Pa Rin.mp3" data-duration="159">
+  <div class="cover"><img src="2.png" alt="2"></div>
+  <h3 class="title">Tap Play</h3>
+  <div class="time">0:00 / 2:39</div>
+  <audio></audio>
+  <div class="controls">
+    <button class="playPause"><i class="fas fa-play"></i></button>
+  </div>
+  <div class="slider-container">
+    <i class="fas fa-backward"></i>
+    <input type="range" class="progress" min="0" max="100" value="0">
+    <i class="fas fa-forward"></i>
+  </div>
+  <div class="slider-container">
+    <i class="fas fa-volume-low"></i>
+    <input type="range" class="volume" min="0" max="1" step="0.01" value="1">
+    <i class="fas fa-volume-high"></i>
+  </div>
+</div>
+
+<div class="player" data-title="Tahanan Kita" data-src="Tahanan Kita.mp3" data-duration="211">
+  <div class="cover"><img src="3.png" alt="3"></div>
+  <h3 class="title">Tap Play</h3>
+  <div class="time">0:00 / 3:31</div>
+  <audio></audio>
+  <div class="controls">
+    <button class="playPause"><i class="fas fa-play"></i></button>
+  </div>
+  <div class="slider-container">
+    <i class="fas fa-backward"></i>
+    <input type="range" class="progress" min="0" max="100" value="0">
+    <i class="fas fa-forward"></i>
+  </div>
+  <div class="slider-container">
+    <i class="fas fa-volume-low"></i>
+    <input type="range" class="volume" min="0" max="1" step="0.01" value="1">
+    <i class="fas fa-volume-high"></i>
+  </div>
+</div>
+
+<div class="player" data-title="Harana sa Puso" data-src="Harana sa Puso.mp3" data-duration="175">
+  <div class="cover"><img src="4.png" alt="4"></div>
+  <h3 class="title">Tap Play</h3>
+  <div class="time">0:00 / 2:55</div>
+  <audio></audio>
+  <div class="controls">
+    <button class="playPause"><i class="fas fa-play"></i></button>
+  </div>
+  <div class="slider-container">
+    <i class="fas fa-backward"></i>
+    <input type="range" class="progress" min="0" max="100" value="0">
+    <i class="fas fa-forward"></i>
+  </div>
+  <div class="slider-container">
+    <i class="fas fa-volume-low"></i>
+    <input type="range" class="volume" min="0" max="1" step="0.01" value="1">
+    <i class="fas fa-volume-high"></i>
+  </div>
+</div>
+
+<div class="player" data-title="Ikaw Lagi" data-src="Ikaw Lagi.mp3" data-duration="197">
+  <div class="cover"><img src="5.png" alt="5"></div>
+  <h3 class="title">Tap Play</h3>
+  <div class="time">0:00 / 3:17</div>
+  <audio></audio>
+  <div class="controls">
+    <button class="playPause"><i class="fas fa-play"></i></button>
+  </div>
+  <div class="slider-container">
+    <i class="fas fa-backward"></i>
+    <input type="range" class="progress" min="0" max="100" value="0">
+    <i class="fas fa-forward"></i>
+  </div>
+  <div class="slider-container">
+    <i class="fas fa-volume-low"></i>
+    <input type="range" class="volume" min="0" max="1" step="0.01" value="1">
+    <i class="fas fa-volume-high"></i>
+  </div>
+</div>
+
+<div class="player" data-title="Walang Kapalit" data-src="Walang Kapalit.mp3" data-duration="217">
+  <div class="cover"><img src="6.png" alt="6"></div>
+  <h3 class="title">Tap Play</h3>
+  <div class="time">0:00 / 3:37</div>
+  <audio></audio>
+  <div class="controls">
+    <button class="playPause"><i class="fas fa-play"></i></button>
+  </div>
+  <div class="slider-container">
+    <i class="fas fa-backward"></i>
+    <input type="range" class="progress" min="0" max="100" value="0">
+    <i class="fas fa-forward"></i>
+  </div>
+  <div class="slider-container">
+    <i class="fas fa-volume-low"></i>
+    <input type="range" class="volume" min="0" max="1" step="0.01" value="1">
+    <i class="fas fa-volume-high"></i>
+  </div>
+</div>
+
+</div>
+
+<script>
+const players = document.querySelectorAll(".player");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+let currentIndex = 0;
+
+// Initialize audio elements
+players.forEach(player => {
+  const audioEl = player.querySelector("audio");
+  audioEl.src = player.dataset.src;
+  audioEl.preload = "metadata";
+
+  const playBtn = player.querySelector(".playPause");
+  const icon = playBtn.querySelector("i");
+  const titleEl = player.querySelector(".title");
+  const timeEl = player.querySelector(".time");
+  const progress = player.querySelector(".progress");
+  const volume = player.querySelector(".volume");
+  const totalDuration = parseFloat(player.dataset.duration);
+
+  // Play/Pause
+  playBtn.onclick = () => {
+    if (audioEl.paused) {
+      stopAllAudios();
+      audioEl.play();
+      icon.classList.replace("fa-play", "fa-pause");
+      titleEl.textContent = "Now Playing: " + player.dataset.title;
+      startPulse(player);
+    } else {
+      audioEl.pause();
+      icon.classList.replace("fa-pause", "fa-play");
+      stopPulse(player);
+    }
+  };
+
+  // Update time & progress
+  audioEl.ontimeupdate = () => {
+    const current = audioEl.currentTime;
+    const min = Math.floor(current / 60);
+    const sec = Math.floor(current % 60).toString().padStart(2,"0");
+    const totalMin = Math.floor(totalDuration/60);
+    const totalSec = Math.floor(totalDuration % 60).toString().padStart(2,"0");
+    timeEl.textContent = `${min}:${sec} / ${totalMin}:${totalSec}`;
+    progress.value = (current / totalDuration) * 100;
+  };
+
+  // Progress slider
+  progress.oninput = () => {
+    audioEl.currentTime = (progress.value / 100) * totalDuration;
+  };
+
+  // Volume slider
+  volume.oninput = () => {
+    audioEl.volume = volume.value;
+  };
+});
+
+// Pulse effect
+let pulseIntervals = [];
+function startPulse(player) {
+  stopPulse(player);
+  const interval = setInterval(() => {
+    const intensity = 0.4 + Math.random()*0.15;
+    player.style.boxShadow = `
+      0 20px 40px rgba(0,255,255,${intensity}),
+      0 0 30px rgba(255,0,255,${intensity}),
+      inset 0 0 0 1px rgba(255,255,255,0.15)
+    `;
+  }, 100);
+  pulseIntervals.push({player, interval});
+}
+function stopPulse(player) {
+  pulseIntervals = pulseIntervals.filter(item => {
+    if(item.player===player){
+      clearInterval(item.interval);
+      return false;
+    }
+    return true;
+  });
+  player.style.boxShadow = `
+    0 20px 40px rgba(0,255,255,0.2),
+    0 0 30px rgba(255,0,255,0.2),
+    inset 0 0 0 1px rgba(255,255,255,0.15)
+  `;
+}
+
+// Stop all audios
+function stopAllAudios() {
+  players.forEach(p => {
+    const audioEl = p.querySelector("audio");
+    const icon = p.querySelector(".playPause i");
+    audioEl.pause();
+    icon.classList.replace("fa-pause", "fa-play");
+    stopPulse(p);
+  });
+}
+
+// Carousel Navigation
+function showPlayer(index) {
+  players.forEach((p,i)=>p.classList.toggle("active", i===index));
+  stopAllAudios();
+}
+
+prevBtn.onclick = () => {
+  currentIndex = (currentIndex-1+players.length)%players.length;
+  showPlayer(currentIndex);
+};
+nextBtn.onclick = () => {
+  currentIndex = (currentIndex+1)%players.length;
+  showPlayer(currentIndex);
+};
+
+// Auto-play next song when one ends
+players.forEach((player, index) => {
+  const audioEl = player.querySelector("audio");
+  audioEl.onended = () => {
+    currentIndex = (index + 1) % players.length;
+    showPlayer(currentIndex);
+    const nextAudio = players[currentIndex].querySelector("audio");
+    nextAudio.play();
+    const nextIcon = players[currentIndex].querySelector(".playPause i");
+    nextIcon.classList.replace("fa-play", "fa-pause");
+    const nextTitle = players[currentIndex].querySelector(".title");
+    nextTitle.textContent = "Now Playing: " + players[currentIndex].dataset.title;
+    startPulse(players[currentIndex]);
+  };
+});
+
+
+</script>
+</body>
+</html>
