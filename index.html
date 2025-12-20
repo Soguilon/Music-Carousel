@@ -369,7 +369,7 @@ h3 {
 const players = document.querySelectorAll(".player");
 let currentIndex = 0;
 
-players.forEach((player, index)=>{
+players.forEach((player, index) => {
   const audioEl = player.querySelector("audio");
   audioEl.src = player.dataset.src;
   audioEl.preload = "metadata";
@@ -379,117 +379,121 @@ players.forEach((player, index)=>{
   const titleEl = player.querySelector(".title");
   const timeEl = player.querySelector(".time");
   const volume = player.querySelector(".volume");
-  const totalDuration = parseFloat(player.dataset.duration);
   const progress = player.querySelector(".progress");
 
   const prevBtn = player.querySelector(".prev");
   const nextBtn = player.querySelector(".next");
 
-  playBtn.onclick = ()=>{
-    if(audioEl.paused){
+  /* Load real duration */
+  audioEl.onloadedmetadata = () => {
+    updateTime(0, audioEl.duration);
+  };
+
+  playBtn.onclick = () => {
+    if (audioEl.paused) {
       stopAllAudios();
       audioEl.play();
-      icon.classList.replace("fa-play","fa-pause");
+      icon.classList.replace("fa-play", "fa-pause");
       titleEl.textContent = "Now Playing: " + player.dataset.title;
       startPulse(player);
-    } else{
+    } else {
       audioEl.pause();
-      icon.classList.replace("fa-pause","fa-play");
+      icon.classList.replace("fa-pause", "fa-play");
       stopPulse(player);
     }
   };
 
-  prevBtn.onclick = ()=>{
-    currentIndex = (currentIndex-1+players.length)%players.length;
-    showPlayer(currentIndex);
-  };
-  nextBtn.onclick = ()=>{
-    currentIndex = (currentIndex+1)%players.length;
+  prevBtn.onclick = () => {
+    currentIndex = (currentIndex - 1 + players.length) % players.length;
     showPlayer(currentIndex);
   };
 
-  audioEl.ontimeupdate = ()=>{
-    const current = audioEl.currentTime;
-    const min = Math.floor(current/60);
-    const sec = Math.floor(current%60).toString().padStart(2,"0");
-    const totalMin = Math.floor(totalDuration/60);
-    const totalSec = Math.floor(totalDuration%60).toString().padStart(2,"0");
-    timeEl.textContent = `${min}:${sec} / ${totalMin}:${totalSec}`;
-    progress.value = (current/totalDuration)*100;
+  nextBtn.onclick = () => {
+    currentIndex = (currentIndex + 1) % players.length;
+    showPlayer(currentIndex);
   };
 
-  progress.oninput = ()=>{
-    audioEl.currentTime = (progress.value/100)*totalDuration;
+  audioEl.ontimeupdate = () => {
+    if (!audioEl.duration) return;
+    updateTime(audioEl.currentTime, audioEl.duration);
+    progress.value = (audioEl.currentTime / audioEl.duration) * 100;
   };
 
-  volume.oninput = ()=>{
+  progress.oninput = () => {
+    if (audioEl.duration) {
+      audioEl.currentTime = (progress.value / 100) * audioEl.duration;
+    }
+  };
+
+  volume.oninput = () => {
     audioEl.volume = volume.value;
-    const volLow = player.querySelector(".fa-volume-off");
-    const volHigh = player.querySelector(".fa-volume-up");
-    if(volume.value<0.3){ volLow.style.color="#ff5fa2"; volHigh.style.color="#0ff";}
-    else if(volume.value<0.7){ volLow.style.color="#0ff"; volHigh.style.color="#0ff";}
-    else{ volLow.style.color="#0ff"; volHigh.style.color="#ff5fa2";}
   };
 
-  audioEl.onended = ()=>{
-    currentIndex = (index+1)%players.length;
+  audioEl.onended = () => {
+    currentIndex = (index + 1) % players.length;
     showPlayer(currentIndex);
     const nextAudio = players[currentIndex].querySelector("audio");
     nextAudio.play();
     const nextIcon = players[currentIndex].querySelector(".playPause i");
-    nextIcon.classList.replace("fa-play","fa-pause");
+    nextIcon.classList.replace("fa-play", "fa-pause");
     const nextTitle = players[currentIndex].querySelector(".title");
-    nextTitle.textContent = "Now Playing: "+players[currentIndex].dataset.title;
+    nextTitle.textContent =
+      "Now Playing: " + players[currentIndex].dataset.title;
     startPulse(players[currentIndex]);
   };
+
+  function updateTime(current, total) {
+    const cMin = Math.floor(current / 60);
+    const cSec = Math.floor(current % 60).toString().padStart(2, "0");
+    const tMin = Math.floor(total / 60);
+    const tSec = Math.floor(total % 60).toString().padStart(2, "0");
+    timeEl.textContent = `${cMin}:${cSec} / ${tMin}:${tSec}`;
+  }
 });
 
-function stopAllAudios(){
-  players.forEach(p=>{
+function stopAllAudios() {
+  players.forEach(p => {
     const audioEl = p.querySelector("audio");
     const icon = p.querySelector(".playPause i");
     audioEl.pause();
-    icon.classList.replace("fa-pause","fa-play");
+    icon.classList.replace("fa-pause", "fa-play");
     stopPulse(p);
   });
 }
 
-function showPlayer(index){
-  players.forEach((p,i)=>p.classList.toggle("active", i===index));
+function showPlayer(index) {
+  players.forEach((p, i) => p.classList.toggle("active", i === index));
   stopAllAudios();
 }
 
 /* Neon Pulse Effect */
 let pulseIntervals = [];
-function startPulse(player){
+function startPulse(player) {
   stopPulse(player);
-  const interval = setInterval(()=>{
-    const intensity = 0.4 + Math.random()*0.15;
-    player.style.boxShadow=`
+  const interval = setInterval(() => {
+    const intensity = 0.4 + Math.random() * 0.15;
+    player.style.boxShadow = `
       0 20px 40px rgba(0,255,255,${intensity}),
       0 0 30px rgba(255,0,255,${intensity}),
       inset 0 0 0 1px rgba(255,255,255,0.15)
     `;
-  },100);
-  pulseIntervals.push({player, interval});
+  }, 100);
+  pulseIntervals.push({ player, interval });
 }
-function stopPulse(player){
-  pulseIntervals = pulseIntervals.filter(item=>{
-    if(item.player===player){
+function stopPulse(player) {
+  pulseIntervals = pulseIntervals.filter(item => {
+    if (item.player === player) {
       clearInterval(item.interval);
       return false;
     }
     return true;
   });
-  player.style.boxShadow=`
-    0 20px 40px rgba(0,255,255,0.2),
-    0 0 30px rgba(255,0,255,0.2),
-    inset 0 0 0 1px rgba(255,255,255,0.15)
-  `;
 }
 </script>
+
 </body>
 </html>
+
 
 
 
