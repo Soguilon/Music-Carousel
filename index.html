@@ -628,60 +628,150 @@ h3 {
 <script>
 const players = document.querySelectorAll(".player");
 let currentIndex = 0;
+
+// Elements for search
 const songSearch = document.getElementById("songSearch");
 const searchBtn = document.getElementById("searchBtn");
 const suggestionsBox = document.getElementById("suggestions");
 
-// Show matching songs in suggestions
-songSearch.addEventListener("input", () => {
-  const query = songSearch.value.toLowerCase();
+// =====================
+// Search Functionality
+// =====================
+function showSuggestions(query) {
   suggestionsBox.innerHTML = "";
   if (!query) return;
   players.forEach((p, index) => {
-    if (p.dataset.title.toLowerCase().includes(query)) {
+    if (p.dataset.title.toLowerCase().includes(query.toLowerCase())) {
       const div = document.createElement("div");
       div.textContent = p.dataset.title;
       div.addEventListener("click", () => {
         showPlayer(index);
         currentIndex = index;
         suggestionsBox.innerHTML = "";
+        songSearch.value = "";
       });
       suggestionsBox.appendChild(div);
     }
   });
-});
+}
 
-// Search button click
+songSearch.addEventListener("input", () => showSuggestions(songSearch.value));
+songSearch.addEventListener("keypress", e => { if(e.key === "Enter") searchBtn.click(); });
 searchBtn.addEventListener("click", () => {
   const query = songSearch.value.toLowerCase();
   const foundIndex = Array.from(players).findIndex(p => p.dataset.title.toLowerCase().includes(query));
-  if (foundIndex !== -1) {
+  if(foundIndex !== -1){
     showPlayer(foundIndex);
     currentIndex = foundIndex;
     suggestionsBox.innerHTML = "";
+    songSearch.value = "";
   }
 });
 
-// Enter key search
-songSearch.addEventListener("keypress", e => {
-  if (e.key === "Enter") searchBtn.click();
-});
-
-// Show player function
+// =====================
+// Show Player Function
+// =====================
 function showPlayer(index) {
+  const player = players[index];
   players.forEach((p,i) => p.classList.toggle("active", i===index));
   stopAllAudios();
-  const audioEl = players[index].querySelector("audio");
-  const icon = players[index].querySelector(".playPause i");
-  const titleEl = players[index].querySelector(".title");
-  titleEl.textContent = "Now Playing: " + players[index].dataset.title;
-  audioEl.play();
+
+  const audioEl = player.querySelector("audio");
+  audioEl.src = player.dataset.src;
+  audioEl.play().catch(() => {}); // handle autoplay restrictions
+
+  const icon = player.querySelector(".playPause i");
   icon.classList.replace("fa-play","fa-pause");
-  startPulse(players[index]);
+
+  const titleEl = player.querySelector(".title");
+  titleEl.textContent = "Now Playing: " + player.dataset.title;
+
+  currentIndex = index;
 }
 
-// Keep your existing audio controls, volume, progress, pulse effect JS
+// =====================
+// Stop All Audios
+// =====================
+function stopAllAudios() {
+  players.forEach(p => {
+    const audioEl = p.querySelector("audio");
+    audioEl.pause();
+    audioEl.currentTime = 0;
+    const icon = p.querySelector(".playPause i");
+    if(icon) icon.classList.replace("fa-pause","fa-play");
+  });
+}
+
+// =====================
+// Controls (Play/Pause, Next, Prev)
+// =====================
+players.forEach((player, index) => {
+  const playBtn = player.querySelector(".playPause");
+  const nextBtn = player.querySelector(".next");
+  const prevBtn = player.querySelector(".prev");
+  const audioEl = player.querySelector("audio");
+  const progress = player.querySelector(".progress");
+  const volume = player.querySelector(".volume");
+
+  // Play/Pause
+  playBtn.addEventListener("click", () => {
+    if(audioEl.paused){
+      stopAllAudios();
+      audioEl.play();
+      playBtn.querySelector("i").classList.replace("fa-play","fa-pause");
+      players[index].classList.add("active");
+    } else {
+      audioEl.pause();
+      playBtn.querySelector("i").classList.replace("fa-pause","fa-play");
+    }
+  });
+
+  // Next Button
+  nextBtn.addEventListener("click", () => {
+    let nextIndex = (index + 1) % players.length;
+    showPlayer(nextIndex);
+  });
+
+  // Prev Button
+  prevBtn.addEventListener("click", () => {
+    let prevIndex = (index - 1 + players.length) % players.length;
+    showPlayer(prevIndex);
+  });
+
+  // Volume Control
+  volume.addEventListener("input", () => {
+    audioEl.volume = volume.value;
+  });
+
+  // Progress Bar
+  audioEl.addEventListener("timeupdate", () => {
+    if(audioEl.duration) progress.value = (audioEl.currentTime / audioEl.duration) * 100;
+    const minutes = Math.floor(audioEl.currentTime / 60);
+    const seconds = Math.floor(audioEl.currentTime % 60).toString().padStart(2,"0");
+    const totalMin = Math.floor(audioEl.duration / 60);
+    const totalSec = Math.floor(audioEl.duration % 60).toString().padStart(2,"0");
+    player.querySelector(".time").textContent = `${minutes}:${seconds} / ${totalMin}:${totalSec}`;
+  });
+
+  // Seek through progress bar
+  progress.addEventListener("input", () => {
+    audioEl.currentTime = (progress.value / 100) * audioEl.duration;
+  });
+
+  // Auto-play next track when finished
+  audioEl.addEventListener("ended", () => {
+    let nextIndex = (index + 1) % players.length;
+    showPlayer(nextIndex);
+  });
+});
+
+// =====================
+// Initialize First Player
+// =====================
+showPlayer(0);
 </script>
+
 
 </body>
 </html>
+
