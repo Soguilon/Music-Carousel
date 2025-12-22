@@ -6,31 +6,120 @@
 <title>Music Carousel</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #1c1c1c, #3b3b6b, #ff5fa2);
-  background-size: 600% 600%;
-  animation: gradientMove 12s ease infinite;
-}
-@keyframes gradientMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1c1c1c, #3b3b6b, #ff5fa2);
+    background-size: 600% 600%;
+    animation: gradientMove 12s ease infinite;
+  }
 
-/* Player Carousel Container */
-.carousel {
-  width: 90%;
-  max-width: 380px;
-  position: relative;
-}
+  @keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
 
-/* Player Card */
+  /* Header */
+  .header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(15px);
+    color: #0ff;
+    text-align: center;
+    padding: 12px 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0,255,255,0.3), 0 2px 15px rgba(255,0,255,0.2);
+  }
+
+  .header h1 {
+    margin: 0 0 8px;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    text-shadow: 0 0 8px #0ff, 0 0 12px #ff5fa2;
+  }
+
+  .search-bar {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto;
+    max-width: 380px;
+  }
+
+  .search-bar input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background: rgba(0,0,0,0.4);
+    color: #fff;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 5px #0ff inset, 0 0 5px #ff5fa2 inset;
+  }
+
+  .search-bar input::placeholder { color: rgba(255,255,255,0.6); }
+
+  .search-bar button {
+    padding: 8px 12px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.5);
+    color: #0ff;
+    font-size: 16px;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 10px #0ff, 0 0 15px #ff5fa2;
+    transition: transform 0.15s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .search-bar button:hover {
+    transform: scale(1.15);
+    color: #ff5fa2;
+    box-shadow: 0 0 15px #0ff, 0 0 25px #ff5fa2;
+  }
+
+  /* Suggestions dropdown */
+  .suggestions {
+    position: absolute;
+    top: 38px;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.8);
+    border-radius: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 200;
+    box-shadow: 0 0 8px #0ff, 0 0 12px #ff5fa2;
+  }
+
+  .suggestions div {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #fff;
+  }
+
+  .suggestions div:hover {
+    background: rgba(0,255,255,0.2);
+  }
+
+  /* Carousel container */
+  .carousel {
+    width: 90%;
+    max-width: 380px;
+    margin: 120px auto 0; /* leave space for fixed header */
+    position: relative;
+  }
+
+ /* Player Card */
 .player {
   backdrop-filter: blur(25px) saturate(180%);
   background: rgba(0,0,0,0.4);
@@ -192,68 +281,6 @@ h3 {
   .controls button { width: 48px; height: 48px; font-size: 20px; }
 }
 
-/* Header & Search Bar */
-.header {
-  width: 90%;
-  max-width: 380px;
-  margin: 20px auto;
-  text-align: center;
-  color: #0ff;
-  text-shadow: 0 0 8px #0ff, 0 0 12px #ff5fa2;
-  font-family: 'Segoe UI', sans-serif;
-}
-
-.header h1 {
-  margin-bottom: 12px;
-  font-size: 1.5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-}
-
-.search-bar {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-}
-
-.search-bar input {
-  flex: 1;
-  padding: 8px 12px;
-  border-radius: 20px;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  background: rgba(0,0,0,0.4);
-  color: #fff;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 0 5px #0ff inset, 0 0 5px #ff5fa2 inset;
-}
-
-.search-bar input::placeholder {
-  color: rgba(255,255,255,0.6);
-}
-
-.search-bar button {
-  padding: 8px 12px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(0,0,0,0.5);
-  color: #0ff;
-  font-size: 16px;
-  cursor: pointer;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 0 10px #0ff, 0 0 15px #ff5fa2;
-  transition: transform 0.15s ease, color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.search-bar button:hover {
-  transform: scale(1.15);
-  color: #ff5fa2;
-  box-shadow: 0 0 15px #0ff, 0 0 25px #ff5fa2;
-}
-  
 </style>
 </head>
 <body>
@@ -263,12 +290,12 @@ h3 {
   <div class="search-bar">
     <input type="text" id="songSearch" placeholder="Search for a song...">
     <button id="searchBtn"><i class="fas fa-search"></i></button>
+    <div class="suggestions" id="suggestions"></div>
   </div>
 </div>
-  
-<div class="carousel">
 
-<!-- Repeat Players 1 to 6 with aesthetic sliders -->
+<div class="carousel">
+ <!-- Repeat Players 1 to 6 with aesthetic sliders -->
 <!-- Player 1 -->
 <div class="player active" data-title="Mahal Kita Lagi" data-src="Mahal Kita Lagi.mp3" data-duration="183">
   <div class="cover"><img src="1.png" alt="1"></div>
@@ -601,164 +628,60 @@ h3 {
 <script>
 const players = document.querySelectorAll(".player");
 let currentIndex = 0;
+const songSearch = document.getElementById("songSearch");
+const searchBtn = document.getElementById("searchBtn");
+const suggestionsBox = document.getElementById("suggestions");
 
-players.forEach((player, index) => {
-  const audioEl = player.querySelector("audio");
-  audioEl.src = player.dataset.src;
-  audioEl.preload = "metadata";
-
-  const playBtn = player.querySelector(".playPause");
-  const icon = playBtn.querySelector("i");
-  const titleEl = player.querySelector(".title");
-  const timeEl = player.querySelector(".time");
-  const volume = player.querySelector(".volume");
-  const progress = player.querySelector(".progress");
-
-  const prevBtn = player.querySelector(".prev");
-  const nextBtn = player.querySelector(".next");
-
-  /* Load real duration */
-  audioEl.onloadedmetadata = () => {
-    updateTime(0, audioEl.duration);
-  };
-
-  playBtn.onclick = () => {
-    if (audioEl.paused) {
-      stopAllAudios();
-      audioEl.play();
-      icon.classList.replace("fa-play", "fa-pause");
-      titleEl.textContent = "Now Playing: " + player.dataset.title;
-      startPulse(player);
-    } else {
-      audioEl.pause();
-      icon.classList.replace("fa-pause", "fa-play");
-      stopPulse(player);
+// Show matching songs in suggestions
+songSearch.addEventListener("input", () => {
+  const query = songSearch.value.toLowerCase();
+  suggestionsBox.innerHTML = "";
+  if (!query) return;
+  players.forEach((p, index) => {
+    if (p.dataset.title.toLowerCase().includes(query)) {
+      const div = document.createElement("div");
+      div.textContent = p.dataset.title;
+      div.addEventListener("click", () => {
+        showPlayer(index);
+        currentIndex = index;
+        suggestionsBox.innerHTML = "";
+      });
+      suggestionsBox.appendChild(div);
     }
-  };
-
-  prevBtn.onclick = () => {
-    currentIndex = (currentIndex - 1 + players.length) % players.length;
-    showPlayer(currentIndex);
-  };
-
-  nextBtn.onclick = () => {
-    currentIndex = (currentIndex + 1) % players.length;
-    showPlayer(currentIndex);
-  };
-
-  audioEl.ontimeupdate = () => {
-    if (!audioEl.duration) return;
-    updateTime(audioEl.currentTime, audioEl.duration);
-    progress.value = (audioEl.currentTime / audioEl.duration) * 100;
-  };
-
-  progress.oninput = () => {
-    if (audioEl.duration) {
-      audioEl.currentTime = (progress.value / 100) * audioEl.duration;
-    }
-  };
-
-  volume.oninput = () => {
-    audioEl.volume = volume.value;
-  };
-
-  audioEl.onended = () => {
-    currentIndex = (index + 1) % players.length;
-    showPlayer(currentIndex);
-    const nextAudio = players[currentIndex].querySelector("audio");
-    nextAudio.play();
-    const nextIcon = players[currentIndex].querySelector(".playPause i");
-    nextIcon.classList.replace("fa-play", "fa-pause");
-    const nextTitle = players[currentIndex].querySelector(".title");
-    nextTitle.textContent =
-      "Now Playing: " + players[currentIndex].dataset.title;
-    startPulse(players[currentIndex]);
-  };
-
-  function updateTime(current, total) {
-    const cMin = Math.floor(current / 60);
-    const cSec = Math.floor(current % 60).toString().padStart(2, "0");
-    const tMin = Math.floor(total / 60);
-    const tSec = Math.floor(total % 60).toString().padStart(2, "0");
-    timeEl.textContent = `${cMin}:${cSec} / ${tMin}:${tSec}`;
-  }
+  });
 });
 
-function stopAllAudios() {
-  players.forEach(p => {
-    const audioEl = p.querySelector("audio");
-    const icon = p.querySelector(".playPause i");
-    audioEl.pause();
-    icon.classList.replace("fa-pause", "fa-play");
-    stopPulse(p);
-  });
-}
-
-function showPlayer(index) {
-  players.forEach((p, i) => p.classList.toggle("active", i === index));
-  stopAllAudios();
-}
-
-/* Neon Pulse Effect */
-let pulseIntervals = [];
-function startPulse(player) {
-  stopPulse(player);
-  const interval = setInterval(() => {
-    const intensity = 0.4 + Math.random() * 0.15;
-    player.style.boxShadow = `
-      0 20px 40px rgba(0,255,255,${intensity}),
-      0 0 30px rgba(255,0,255,${intensity}),
-      inset 0 0 0 1px rgba(255,255,255,0.15)
-    `;
-  }, 100);
-  pulseIntervals.push({ player, interval });
-}
-function stopPulse(player) {
-  pulseIntervals = pulseIntervals.filter(item => {
-    if (item.player === player) {
-      clearInterval(item.interval);
-      return false;
-    }
-    return true;
-  });
-}
-
-  // Song Search Functionality
-const searchBtn = document.getElementById("searchBtn");
-const songSearch = document.getElementById("songSearch");
-
+// Search button click
 searchBtn.addEventListener("click", () => {
   const query = songSearch.value.toLowerCase();
-  const foundIndex = Array.from(players).findIndex(p =>
-    p.dataset.title.toLowerCase().includes(query)
-  );
+  const foundIndex = Array.from(players).findIndex(p => p.dataset.title.toLowerCase().includes(query));
   if (foundIndex !== -1) {
     showPlayer(foundIndex);
     currentIndex = foundIndex;
-  } else {
-    alert("Song not found!");
+    suggestionsBox.innerHTML = "";
   }
 });
 
-// Optional: allow Enter key to search
-songSearch.addEventListener("keypress", (e) => {
+// Enter key search
+songSearch.addEventListener("keypress", e => {
   if (e.key === "Enter") searchBtn.click();
 });
+
+// Show player function
+function showPlayer(index) {
+  players.forEach((p,i) => p.classList.toggle("active", i===index));
+  stopAllAudios();
+  const audioEl = players[index].querySelector("audio");
+  const icon = players[index].querySelector(".playPause i");
+  const titleEl = players[index].querySelector(".title");
+  titleEl.textContent = "Now Playing: " + players[index].dataset.title;
+  audioEl.play();
+  icon.classList.replace("fa-play","fa-pause");
+  startPulse(players[index]);
+}
+
+// Keep your existing audio controls, volume, progress, pulse effect JS
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
