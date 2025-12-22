@@ -191,9 +191,81 @@ h3 {
 @media screen and (max-width: 480px) {
   .controls button { width: 48px; height: 48px; font-size: 20px; }
 }
+
+/* Header & Search Bar */
+.header {
+  width: 90%;
+  max-width: 380px;
+  margin: 20px auto;
+  text-align: center;
+  color: #0ff;
+  text-shadow: 0 0 8px #0ff, 0 0 12px #ff5fa2;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.header h1 {
+  margin-bottom: 12px;
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: rgba(0,0,0,0.4);
+  color: #fff;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 5px #0ff inset, 0 0 5px #ff5fa2 inset;
+}
+
+.search-bar input::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+.search-bar button {
+  padding: 8px 12px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.5);
+  color: #0ff;
+  font-size: 16px;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 10px #0ff, 0 0 15px #ff5fa2;
+  transition: transform 0.15s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-bar button:hover {
+  transform: scale(1.15);
+  color: #ff5fa2;
+  box-shadow: 0 0 15px #0ff, 0 0 25px #ff5fa2;
+}
+  
 </style>
 </head>
 <body>
+
+<div class="header">
+  <h1><i class="fas fa-music"></i> Music Player</h1>
+  <div class="search-bar">
+    <input type="text" id="songSearch" placeholder="Search for a song...">
+    <button id="searchBtn"><i class="fas fa-search"></i></button>
+  </div>
+</div>
+  
 <div class="carousel">
 
 <!-- Repeat Players 1 to 6 with aesthetic sliders -->
@@ -650,10 +722,33 @@ function stopPulse(player) {
     return true;
   });
 }
+
+  // Song Search Functionality
+const searchBtn = document.getElementById("searchBtn");
+const songSearch = document.getElementById("songSearch");
+
+searchBtn.addEventListener("click", () => {
+  const query = songSearch.value.toLowerCase();
+  const foundIndex = Array.from(players).findIndex(p =>
+    p.dataset.title.toLowerCase().includes(query)
+  );
+  if (foundIndex !== -1) {
+    showPlayer(foundIndex);
+    currentIndex = foundIndex;
+  } else {
+    alert("Song not found!");
+  }
+});
+
+// Optional: allow Enter key to search
+songSearch.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") searchBtn.click();
+});
 </script>
 
 </body>
 </html>
+
 
 
 
